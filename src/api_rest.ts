@@ -17,8 +17,6 @@ app.post('/checkout', async (req: Request, res: Response) => {
       const payload = req.body;
       console.log({payload});
       if(!validate(payload.cpf)) return res.json({ message: "Invalid cpf" });
-
-         console.log({payload});
          const output = {
             subtotal: 0,
             total: 0,
@@ -31,14 +29,11 @@ app.post('/checkout', async (req: Request, res: Response) => {
                   id_product: item.idProduct
                }
             });
+            if(productData.width <= 0 || productData.height <= 0 || productData.length <= 0) throw new Error("Invalid dimensions");
+            if(productData.weight <= 0) throw new Error("Invalid weight");
             if(req.body.items.filter((i: any) => i.idProduct === item.idProduct).length > 1) throw new Error("Duplicated item");
             if(item.quantity <= 0) throw new Error("Invalid quantity");
-            
-            console.log({item});
             output.subtotal += productData.price * item.quantity;
-            console.log({productData});
-            console.log({subtotal: output.subtotal});
-
             if(req.body.from && req.body.to) {
                const volume = (productData.width / 100) * (productData.height / 100) * (productData.length / 100);
                const density = productData.weight / volume;

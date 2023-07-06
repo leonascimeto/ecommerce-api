@@ -118,32 +118,28 @@ test("deve fazer um pedidio com 3 itens calculando o frete com preço minimo", a
 
 
 
-// test("Não deve informar dimensões negativas", async () => {
-//    const payload = {
-//       cpf: "407.302.170-27",
-//       items: [
-//          { idProduct: 1, quantity: 1, width: -1, height: 1, length: 1 },
-//          { idProduct: 2, quantity: 1, width: 1, height: -1, length: 1 },
-//          { idProduct: 3, quantity: 3, width: 1, height: 1, length: -1 }
-//       ]
-//    }
+test("Não deve informar dimensões negativas", async () => {
+   const payload = {
+      cpf: "407.302.170-27",
+      items: [
+         { idProduct: 4, quantity: 1 },
+      ]
+   }
 
-//    const response = await axios.post(checkoutUrl, payload)
-//    const output = response.data;
-//    expect(output.message).toBe("Invalid dimensions");
-// })
+   const response = await axios.post(checkoutUrl, payload)
+   const output = response.data;
+   expect(output.message).toBe("Invalid dimensions");
+})
 
-// test("O peso não deve ser negativo", async () => {
-//    const payload = {
-//       cpf: "407.302.170-27",
-//       items: [
-//          { idProduct: 1, quantity: 1, weight: -1 },
-//          { idProduct: 2, quantity: 1, weight: 1 },
-//          { idProduct: 3, quantity: 3, weight: 1 }
-//       ]
-//    }
+test("O peso não deve ser negativo", async () => {
+   const payload = {
+      cpf: "407.302.170-27",
+      items: [
+         { idProduct: 5, quantity: 1 },
+      ]
+   }
 
-//    const response = await axios.post(checkoutUrl, payload)
-//    const output = response.data;
-//    expect(output.message).toBe("Invalid weight");
-// })
+   const response = await axios.post(checkoutUrl, payload)
+   const output = response.data;
+   expect(output.message).toBe("Invalid weight");
+})
