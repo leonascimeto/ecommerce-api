@@ -1,12 +1,19 @@
 import sinon from "sinon";
 import Checkout, { Input } from "../src/Checkout";
 import CouponRespository from "../src/CouponRepository";
-import CouponRepositoryDatabase from "../src/CouponRepositoryDatabase";
 import ProductRepository from "../src/ProductRepository";
 import ProductRepositoryDatabase from "../src/ProductRepositoryDatabase";
 import { EmailGatewayConsole } from "../src/EmailGatewayConsole";
+import crypto from "crypto";
+import GetOrder from "../src/GetOrder";
+import OrderRepositoryDatabase from "../src/OrderRepositoryDatabase";
+import { get } from "http";
 
 let checkout: Checkout
+let getOrder: GetOrder
+let productRepository: ProductRepository
+let couponRepository: CouponRespository
+let orderRepository: OrderRepositoryDatabase
 
 beforeEach(() => {
    const products: any = {
@@ -57,7 +64,7 @@ beforeEach(() => {
       }
    }
 
-   const productRepository: ProductRepository = {
+   productRepository = {
      async get (id: number) : Promise<any> {
          return products[id];
       }
@@ -74,12 +81,14 @@ beforeEach(() => {
       },
    }
 
-   const couponRepository : CouponRespository = {
+   couponRepository = {
       async get (code: string) : Promise<any>{
          return coupons[code];
       }
    }
    checkout = new Checkout(productRepository, couponRepository);
+   orderRepository = new OrderRepositoryDatabase();
+   getOrder = new GetOrder(orderRepository);
 });
 
 test("Não deve criar pedido com cpf inválido", async () => {
@@ -114,7 +123,8 @@ test("deve fazer um pedido com 3 items com cupon de desconto", async () => {
          { idProduct: 2, quantity: 1 },
          { idProduct: 3, quantity: 3 }
       ],
-      coupon: "VALE20"
+      coupon: "VALE20",
+      date: new Date('2023-07-23T03:00:00')
    }
    const output = await checkout.execute(input)
    expect(output.total).toBe(6090 * 0.8);
@@ -179,8 +189,6 @@ test("deve fazer um pedidio com 3 itens calculando o frete com preço minimo", a
    expect(output.total).toBe(6370);
 })
 
-
-
 test("Não deve informar dimensões negativas", async () => {
    const input = {
       cpf: "407.302.170-27",
@@ -222,35 +230,6 @@ test("deve fazer um pedido com 1 items com stub", async () => {
    productRepositoryStub.restore();
 });
 
-test("deve verificar se email foi enviado usando um spy", async () => {
-   const emailGatewaySpy = sinon.spy(EmailGatewayConsole.prototype, "send");
-   const productRepositoryStub = sinon.stub(ProductRepositoryDatabase.prototype, "get").resolves({
-      idProduct: 1,
-      description: "A",
-      price: 1000,
-   });
-   checkout = new Checkout();
-   const input: Input = {
-      cpf: "407.302.170-27",
-      items: [
-         { idProduct: 1, quantity: 1 },
-      ],
-      email: "carlos@email.com",
-   }
-
-   const output = await checkout.execute(input)
-   expect(output.total).toBe(1000);
-   expect(emailGatewaySpy.calledOnce).toBeTruthy();
-   expect(emailGatewaySpy.calledWith({
-      to: input.email,
-      email: `Olá, o valor total do seu pedido é de ${output.total}`,
-      subject: "Purchase Sucess",
-      from: "apexstore@email.io"
-   })).toBe(true);
-   emailGatewaySpy.restore();
-   productRepositoryStub.restore();
-});
-
 test("deve fazer um pedido usando um mock", async () => {
    const productRepositoryMock = sinon.mock(ProductRepositoryDatabase.prototype);
    productRepositoryMock.expects("get").once().resolves({
@@ -271,4 +250,52 @@ test("deve fazer um pedido usando um mock", async () => {
    expect(output.total).toBe(1000);
    productRepositoryMock.verify();
    productRepositoryMock.restore();
+});
+
+test("deve fazer um pedido com 3 items e retornar o registro da ordem do pedido", async () => {
+   const idOrder = crypto.randomUUID();
+   const input: Input = {
+      idOrder,
+      cpf: "407.302.170-27",
+      items: [
+         { idProduct: 1, quantity: 1 },
+         { idProduct: 2, quantity: 1 },
+         { idProduct: 3, quantity: 3 }
+      ],
+      email: "carlos@email.com"
+   }
+   await checkout.execute(input)
+   const output = await getOrder.execute(idOrder);
+   expect(output.total).toBe(6090)
+});
+
+test("deve fazer um pedido com 3 items e gerar código do pedido", async () => {
+   await orderRepository.clear();
+   checkout = new Checkout(productRepository, couponRepository, orderRepository);
+   await checkout.execute({
+      idOrder: crypto.randomUUID(),
+      cpf: "407.302.170-27",
+      items: [
+         { idProduct: 1, quantity: 1 },
+         { idProduct: 2, quantity: 1 },
+         { idProduct: 3, quantity: 3 }
+      ],
+      email: "carlos@email.com"
+   })
+   const idOrder = crypto.randomUUID();
+   const input: Input = {
+      idOrder: idOrder,
+      cpf: "407.302.170-27",
+      items: [
+         { idProduct: 1, quantity: 1 },
+         { idProduct: 2, quantity: 1 },
+         { idProduct: 3, quantity: 3 }
+      ],
+      email: "carlos@email.com",
+      date: new Date('2023-05-30T03:00:00')
+   }
+   await checkout.execute(input)
+   const output = await getOrder.execute(idOrder);
+   expect(output.code).toBe("202300000002")
+
 });

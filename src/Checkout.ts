@@ -3,14 +3,14 @@ import { validate } from "./validateCpf";
 import CouponRespository from "./CouponRepository";
 import ProductRepositoryDatabase from "./ProductRepositoryDatabase";
 import CouponRepositoryDatabase from "./CouponRepositoryDatabase";
-import EmailGateway from "./EmailGateway";
-import { EmailGatewayConsole } from "./EmailGatewayConsole";
+import OrderRepository from "./OrderRepository";
+import OrderRepositoryDatabase from "./OrderRepositoryDatabase";
 
 export default class Checkout {
    constructor(
       readonly productRepository: ProductRepository = new ProductRepositoryDatabase(),
       readonly couponRepository: CouponRespository = new CouponRepositoryDatabase(),
-      readonly emailGateway: EmailGateway = new EmailGatewayConsole()
+      readonly orderRepsoitory: OrderRepository = new OrderRepositoryDatabase(),
    ) {}
 
    async execute(input: Input){
@@ -20,8 +20,9 @@ export default class Checkout {
             total: 0,
             freight: 0
          }
+
          for(const item of input.items) {
-            const productData = await this.productRepository.get(item.idProduct);            
+            const productData = await this.productRepository.get(item.idProduct);
             if(productData.width <= 0 || productData.height <= 0 || productData.length <= 0) throw new Error("Invalid dimensions");
             if(productData.weight <= 0) throw new Error("Invalid weight");
             if(input.items.filter((i: any) => i.idProduct === item.idProduct).length > 1) throw new Error("Duplicated item");
@@ -33,33 +34,41 @@ export default class Checkout {
                let freight = Math.max(volume * (density/100) * 1000, 10);
                output.freight += freight * item.quantity;
             }
+
+            item.price = productData.price;
          }
          output.total = output.subtotal;
+         const today = input.date ?? new Date();
          if(input.coupon) {
             const couponData = await this.couponRepository.get(input.coupon);
-            if(couponData && couponData.expire_date > new Date()) 
+            if(couponData && couponData.expire_date > input.date) 
                output.total -= (output.total * couponData.percentage) / 100;
          }
          output.total += output.freight;
-         if(input.email) {
-            await this.emailGateway.send({
-               to: input.email,
-               email: `Olá, o valor total do seu pedido é de ${output.total}`,
-               subject: "Purchase Sucess",
-               from: "apexstore@email.io"
-            });
+         const sequence = await this.orderRepsoitory.count() + 1;
+         const code = `${today.getFullYear()}${new String(sequence).padStart(8, '0')}`
+         const order = {
+            idOrder: input.idOrder,
+            code,
+            cpf: input.cpf,
+            total: output.total,
+            freight: output.freight,
+            items: input.items,
          }
+         await this.orderRepsoitory.save(order);
          return output;
       }
 }
 
 export type Input = {
+   idOrder?: string,
 	cpf: string, 
 	email?: string,
-	items: { idProduct: number, quantity: number }[], 
+	items: { idProduct: number, quantity: number, price?: number }[], 
 	coupon?: string, 
 	from?: string, 
-	to?: string 
+	to?: string,
+   date?: Date
 }
 
 export type Output = {
