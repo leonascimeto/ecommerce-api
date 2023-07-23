@@ -1,13 +1,14 @@
+import sinon from "sinon";
 import Checkout, { Input } from "../src/Checkout";
 import CouponRespository from "../src/CouponRepository";
 import CouponRepositoryDatabase from "../src/CouponRepositoryDatabase";
 import ProductRepository from "../src/ProductRepository";
 import ProductRepositoryDatabase from "../src/ProductRepositoryDatabase";
+import { EmailGatewayConsole } from "../src/EmailGatewayConsole";
 
 let checkout: Checkout
 
 beforeEach(() => {
-
    const products: any = {
       1 : {
          idProduct: 1,
@@ -201,3 +202,73 @@ test("O peso não deve ser negativo", async () => {
 
    expect(() => checkout.execute(input)).rejects.toThrow("Invalid weight");
 })
+
+test("deve fazer um pedido com 1 items com stub", async () => {
+   const productRepositoryStub = sinon.stub(ProductRepositoryDatabase.prototype, "get").resolves({
+      idProduct: 1,
+      description: "A",
+      price: 1000,
+   });
+   checkout = new Checkout();
+   const input: Input = {
+      cpf: "407.302.170-27",
+      items: [
+         { idProduct: 1, quantity: 1 },
+      ],
+   }
+   const output = await checkout.execute(input)
+   console.log(output)
+   expect(output.total).toBe(1000);
+   productRepositoryStub.restore();
+});
+
+test("deve verificar se email foi enviado usando um spy", async () => {
+   const emailGatewaySpy = sinon.spy(EmailGatewayConsole.prototype, "send");
+   const productRepositoryStub = sinon.stub(ProductRepositoryDatabase.prototype, "get").resolves({
+      idProduct: 1,
+      description: "A",
+      price: 1000,
+   });
+   checkout = new Checkout();
+   const input: Input = {
+      cpf: "407.302.170-27",
+      items: [
+         { idProduct: 1, quantity: 1 },
+      ],
+      email: "carlos@email.com",
+   }
+
+   const output = await checkout.execute(input)
+   expect(output.total).toBe(1000);
+   expect(emailGatewaySpy.calledOnce).toBeTruthy();
+   expect(emailGatewaySpy.calledWith({
+      to: input.email,
+      email: `Olá, o valor total do seu pedido é de ${output.total}`,
+      subject: "Purchase Sucess",
+      from: "apexstore@email.io"
+   })).toBe(true);
+   emailGatewaySpy.restore();
+   productRepositoryStub.restore();
+});
+
+test("deve fazer um pedido usando um mock", async () => {
+   const productRepositoryMock = sinon.mock(ProductRepositoryDatabase.prototype);
+   productRepositoryMock.expects("get").once().resolves({
+      idProduct: 1,
+      description: "A",
+      price: 1000,
+   });
+
+   checkout = new Checkout();
+   const input: Input = {
+      cpf: "407.302.170-27",
+      items: [
+         { idProduct: 1, quantity: 1 },
+      ],
+      email: "carlos@email.com",
+   }
+   const output = await checkout.execute(input)
+   expect(output.total).toBe(1000);
+   productRepositoryMock.verify();
+   productRepositoryMock.restore();
+});

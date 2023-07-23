@@ -45,7 +45,7 @@ export default class Checkout {
             await this.emailGateway.send({
                to: input.email,
                email: `Olá, o valor total do seu pedido é de ${output.total}`,
-               subject: "Pedido realizado com sucesso",
+               subject: "Purchase Sucess",
                from: "apexstore@email.io"
             });
          }
