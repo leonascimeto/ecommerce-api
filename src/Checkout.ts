@@ -5,6 +5,7 @@ import ProductRepositoryDatabase from "./ProductRepositoryDatabase";
 import CouponRepositoryDatabase from "./CouponRepositoryDatabase";
 import OrderRepository from "./OrderRepository";
 import OrderRepositoryDatabase from "./OrderRepositoryDatabase";
+import FreightCalculator from "./FreightCalculator";
 
 export default class Checkout {
    constructor(
@@ -22,20 +23,18 @@ export default class Checkout {
          }
 
          for(const item of input.items) {
-            const productData = await this.productRepository.get(item.idProduct);
-            if(productData.width <= 0 || productData.height <= 0 || productData.length <= 0) throw new Error("Invalid dimensions");
-            if(productData.weight <= 0) throw new Error("Invalid weight");
+            const product = await this.productRepository.get(item.idProduct);
+            if(product.width <= 0 || product.height <= 0 || product.length <= 0) throw new Error("Invalid dimensions");
+            if(product.weight <= 0) throw new Error("Invalid weight");
             if(input.items.filter((i: any) => i.idProduct === item.idProduct).length > 1) throw new Error("Duplicated item");
             if(item.quantity <= 0) throw new Error("Invalid quantity");
-            output.subtotal += productData.price * item.quantity;
+            output.subtotal += product.price * item.quantity;
             if(input.from && input.to) {
-               const volume = (productData.width / 100) * (productData.height / 100) * (productData.length / 100);
-               const density = productData.weight / volume;
-               let freight = Math.max(volume * (density/100) * 1000, 10);
+               const freight = FreightCalculator.calculate(product);
                output.freight += freight * item.quantity;
             }
 
-            item.price = productData.price;
+            item.price = product.price;
          }
          output.total = output.subtotal;
          const today = input.date ?? new Date();
