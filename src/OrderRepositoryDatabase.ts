@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import OrderRepository from "./OrderRepository";
+import Order from "./Order";
 
 const prisma = new PrismaClient();
 
@@ -13,12 +14,12 @@ export default class OrderRepositoryDatabase implements OrderRepository {
         })
     }
 
-   async save(order: any): Promise<void> {
+   async save(order: Order): Promise<void> {
       await prisma.order.create({
          data: {
             id_order: order.idOrder,
-            total: order.total,
-            cpf: order.cpf,
+            total: order.getTotal(),
+            cpf: order.cpf.cpf,
             freight: order.freight,
             code: order.code || null,
             items: {

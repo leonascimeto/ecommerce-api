@@ -6,6 +6,7 @@ import CouponRepositoryDatabase from "./CouponRepositoryDatabase";
 import OrderRepository from "./OrderRepository";
 import OrderRepositoryDatabase from "./OrderRepositoryDatabase";
 import FreightCalculator from "./FreightCalculator";
+import Order from "./Order";
 
 export default class Checkout {
    constructor(
@@ -14,49 +15,27 @@ export default class Checkout {
       readonly orderRepsoitory: OrderRepository = new OrderRepositoryDatabase(),
    ) {}
 
-   async execute(input: Input){
-      if(!validate(input.cpf)) throw new Error("Invalid cpf");
-         const output: Output = {
-            subtotal: 0,
-            total: 0,
-            freight: 0
-         }
-
-         for(const item of input.items) {
-            const product = await this.productRepository.get(item.idProduct);
-            if(product.width <= 0 || product.height <= 0 || product.length <= 0) throw new Error("Invalid dimensions");
-            if(product.weight <= 0) throw new Error("Invalid weight");
-            if(input.items.filter((i: any) => i.idProduct === item.idProduct).length > 1) throw new Error("Duplicated item");
-            if(item.quantity <= 0) throw new Error("Invalid quantity");
-            output.subtotal += product.price * item.quantity;
-            if(input.from && input.to) {
-               const freight = FreightCalculator.calculate(product);
-               output.freight += freight * item.quantity;
-            }
-
-            item.price = product.price;
-         }
-         output.total = output.subtotal;
-         const today = input.date ?? new Date();
-         if(input.coupon) {
-            const coupon = await this.couponRepository.get(input.coupon);
-            if(coupon.isValid(today)) 
-               output.total -= coupon.calculaeDiscount(output.total);
-         }
-         output.total += output.freight;
-         const sequence = await this.orderRepsoitory.count() + 1;
-         const code = `${today.getFullYear()}${new String(sequence).padStart(8, '0')}`
-         const order = {
-            idOrder: input.idOrder,
-            code,
-            cpf: input.cpf,
-            total: output.total,
-            freight: output.freight,
-            items: input.items,
-         }
-         await this.orderRepsoitory.save(order);
-         return output;
+   async execute(input: Input): Promise<Output>{
+      const sequence = await this.orderRepsoitory.count() + 1;
+      const order = new Order(input.idOrder, input.cpf, input.date, sequence);
+      for(const item of input.items){
+         const product = await this.productRepository.get(item.idProduct);
+         order.addItem(product, item.quantity);
+         if(input.from && input.to)
+            order.freight += FreightCalculator.calculate(product) * item.quantity;
       }
+      if(input.coupon){
+         const coupon = await this.couponRepository.get(input.coupon);
+         if(coupon){
+            order.addCoupon(coupon);
+         }
+      }
+      await this.orderRepsoitory.save(order);
+      return {
+         total: order.getTotal(),
+         freight: order.freight,
+      };
+   }
 }
 
 export type Input = {
@@ -71,7 +50,6 @@ export type Input = {
 }
 
 export type Output = {
-	subtotal: number,
 	freight: number,
 	total: number
 }

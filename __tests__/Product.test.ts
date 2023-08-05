@@ -11,3 +11,11 @@ test("deve calcular volume", () => {
    const volume = product.getVolume();
    expect(volume).toBe(0.03);
 });
+
+test("Não deve criar produto com dimensões invalidas", () => {
+   expect(() => new Product(1, "A", 1000, 0, -30, -10, 3)).toThrow(new Error("Invalid dimensions"));
+});
+
+test("Não deve criar produto com peso invalido", () => {
+   expect(() => new Product(1, "A", 1000, 100, 30, 10, 0)).toThrow(new Error("Invalid weight"));
+});

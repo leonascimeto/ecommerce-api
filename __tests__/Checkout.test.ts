@@ -53,7 +53,7 @@ test("Não deve criar pedido com cpf inválido", async () => {
       items: []
    }
 
-   expect(() => checkout.execute(input)).rejects.toThrow("Invalid cpf");
+   expect(() => checkout.execute(input)).rejects.toThrow("Invalid CPF");
 });
 
 test("deve fazer um pedido com 3 items", async () => {
@@ -140,7 +140,6 @@ test("deve fazer um pedidio com 3 itens calculando o frete com preço minimo", a
    }
 
    const output = await checkout.execute(input)
-   expect(output.subtotal).toBe(6090);
    expect(output.freight).toBe(280);
    expect(output.total).toBe(6370);
 })
@@ -154,17 +153,6 @@ test.skip("Não deve informar dimensões negativas", async () => {
    }
 
    expect(() => checkout.execute(input)).rejects.toThrow("Invalid dimensions");
-})
-
-test("O peso não deve ser negativo", async () => {
-   const input = {
-      cpf: "407.302.170-27",
-      items: [
-         { idProduct: 5, quantity: 1 },
-      ]
-   }
-
-   expect(() => checkout.execute(input)).rejects.toThrow("Invalid weight");
 })
 
 test("deve fazer um pedido com 1 items com stub", async () => {

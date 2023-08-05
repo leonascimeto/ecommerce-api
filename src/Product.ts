@@ -9,6 +9,8 @@ export default class Product{
       readonly length: number, 
       readonly weight: number
    ) {
+      // TODO if(width <= 0 || height <= 0 || length <= 0) throw new Error("Invalid dimensions");
+      // TODO if(weight <= 0) throw new Error("Invalid weight");
    }
 
    getVolume() {
@@ -18,5 +20,4 @@ export default class Product{
    getDensity() {
       return this.weight / this.getVolume();
    }
-   
 }
