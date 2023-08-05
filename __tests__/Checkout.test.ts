@@ -1,13 +1,11 @@
 import sinon from "sinon";
-import Checkout, { Input } from "../src/Checkout";
+import Checkout from "../src/Checkout";
 import CouponRespository from "../src/CouponRepository";
 import ProductRepository from "../src/ProductRepository";
 import ProductRepositoryDatabase from "../src/ProductRepositoryDatabase";
-import { EmailGatewayConsole } from "../src/EmailGatewayConsole";
 import crypto from "crypto";
 import GetOrder from "../src/GetOrder";
 import OrderRepositoryDatabase from "../src/OrderRepositoryDatabase";
-import { get } from "http";
 import Product from "../src/Product";
 import Coupon from "../src/Coupon";
 
@@ -57,7 +55,7 @@ test("Não deve criar pedido com cpf inválido", async () => {
 });
 
 test("deve fazer um pedido com 3 items", async () => {
-   const input: Input = {
+   const input = {
       cpf: "407.302.170-27",
       items: [
          { idProduct: 1, quantity: 1 },
@@ -158,7 +156,7 @@ test.skip("Não deve informar dimensões negativas", async () => {
 test("deve fazer um pedido com 1 items com stub", async () => {
    const productRepositoryStub = sinon.stub(ProductRepositoryDatabase.prototype, "get").resolves(new Product(1, "A", 100, 1, 1, 1, 1));
    checkout = new Checkout();
-   const input: Input = {
+   const input = {
       cpf: "407.302.170-27",
       items: [
          { idProduct: 1, quantity: 1 },
@@ -174,7 +172,7 @@ test("deve fazer um pedido usando um mock", async () => {
    productRepositoryMock.expects("get").once().resolves(new Product(1, "A", 100, 1, 1, 1, 1));
 
    checkout = new Checkout();
-   const input: Input = {
+   const input = {
       cpf: "407.302.170-27",
       items: [
          { idProduct: 1, quantity: 1 },
@@ -189,7 +187,7 @@ test("deve fazer um pedido usando um mock", async () => {
 
 test("deve fazer um pedido com 3 items e retornar o registro da ordem do pedido", async () => {
    const idOrder = crypto.randomUUID();
-   const input: Input = {
+   const input = {
       idOrder,
       cpf: "407.302.170-27",
       items: [
@@ -218,7 +216,7 @@ test("deve fazer um pedido com 3 items e gerar código do pedido", async () => {
       email: "carlos@email.com"
    })
    const idOrder = crypto.randomUUID();
-   const input: Input = {
+   const input = {
       idOrder: idOrder,
       cpf: "407.302.170-27",
       items: [

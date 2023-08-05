@@ -38,7 +38,7 @@ export default class Checkout {
    }
 }
 
-export type Input = {
+type Input = {
    idOrder?: string,
 	cpf: string, 
 	email?: string,
@@ -49,7 +49,7 @@ export type Input = {
    date?: Date
 }
 
-export type Output = {
+type Output = {
 	freight: number,
 	total: number
 }
