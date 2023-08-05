@@ -39,9 +39,9 @@ export default class Checkout {
          output.total = output.subtotal;
          const today = input.date ?? new Date();
          if(input.coupon) {
-            const couponData = await this.couponRepository.get(input.coupon);
-            if(couponData && couponData.expire_date > input.date) 
-               output.total -= (output.total * couponData.percentage) / 100;
+            const coupon = await this.couponRepository.get(input.coupon);
+            if(coupon.isValid(today)) 
+               output.total -= coupon.calculaeDiscount(output.total);
          }
          output.total += output.freight;
          const sequence = await this.orderRepsoitory.count() + 1;

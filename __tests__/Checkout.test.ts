@@ -9,6 +9,7 @@ import GetOrder from "../src/GetOrder";
 import OrderRepositoryDatabase from "../src/OrderRepositoryDatabase";
 import { get } from "http";
 import Product from "../src/Product";
+import Coupon from "../src/Coupon";
 
 let checkout: Checkout
 let getOrder: GetOrder
@@ -32,18 +33,12 @@ beforeEach(() => {
    };
 
    const coupons: any = {
-      "VALE20": {
-         percentage: 20,
-         expire_date: new Date('2030-05-30T03:00:00')
-      },
-      "VALE10": {
-         percentage: 10,
-         expire_date: new Date('2021-05-30T03:00:00')
-      },
+      "VALE20": new Coupon("VALE20", 20, new Date('2023-12-23T03:00:00')),
+      "VALE10": new Coupon("VALE10", 10, new Date('2021-01-23T03:00:00'))
    }
 
    couponRepository = {
-      async get (code: string) : Promise<any>{
+      async get (code: string) : Promise<Coupon>{
          return coupons[code];
       }
    }
