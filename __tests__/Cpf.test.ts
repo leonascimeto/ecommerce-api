@@ -1,10 +1,19 @@
 import Cpf from "../src/Cpf";
 
-test("Deve criar um cpf valido", () => {
-   const cpf = new Cpf("407.302.170-27");
-   expect(cpf).toBeDefined();
+test.each([
+	"407.302.170-27",
+	"684.053.160-00",
+	"746.971.314-01"
+])("Deve criar um cpf valido", (cpf: string) => {
+   expect(new Cpf(cpf)).toBeDefined();
 });
 
-test("Não deve criar um cpf invalido", () => {
-   expect(() => new Cpf("123.456.789-00")).toThrow("Invalid CPF");
+test.each([
+	"406.302.170-27",
+	"406.302.170",
+	"406.302",
+   "111.111.111-11",
+   "222.222.222-22",
+])("Não deve criar um cpf invalido", (cpf: string) => {
+   expect(() => new Cpf(cpf)).toThrow("Invalid CPF");
 });

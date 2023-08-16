@@ -19,9 +19,7 @@ beforeEach(() => {
    const products: any = {
       1 : new Product(1, "A", 1000, 100, 30, 10, 3),
       2 : new Product(2, "B", 5000, 50, 50, 50, 22),
-      3: new Product(3, "C", 30, 10, 10, 10, 0.9),
-      4: new Product(4, "D", 100, 10, 10, 10, 1),
-      5: new Product(5, "E", 100, 10, 10, 10, -1),
+      3: new Product(3, "C", 30, 10, 10, 10, 0.9)
    }
 
    productRepository = {
@@ -140,17 +138,6 @@ test("deve fazer um pedidio com 3 itens calculando o frete com preço minimo", a
    const output = await checkout.execute(input)
    expect(output.freight).toBe(280);
    expect(output.total).toBe(6370);
-})
-
-test.skip("Não deve informar dimensões negativas", async () => {
-   const input = {
-      cpf: "407.302.170-27",
-      items: [
-         { idProduct: 4, quantity: 1, width: -10, height: 10, length: 10, wheight: 1 },
-      ]
-   }
-
-   expect(() => checkout.execute(input)).rejects.toThrow("Invalid dimensions");
 })
 
 test("deve fazer um pedido com 1 items com stub", async () => {

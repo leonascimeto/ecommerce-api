@@ -1,5 +1,4 @@
 import ProductRepository from "./ProductRepository";
-import { validate } from "./validateCpf";
 import CouponRespository from "./CouponRepository";
 import ProductRepositoryDatabase from "./ProductRepositoryDatabase";
 import CouponRepositoryDatabase from "./CouponRepositoryDatabase";
