@@ -1,18 +1,17 @@
 import express, { Request, Response } from 'express';
-import { validate } from './validateCpf';
 import {PrismaClient} from '@prisma/client'
 import Checkout from './Checkout';
+import DatabaseRepositoryFactory from './DatabaseRepositoryFactory';
 const prisma = new PrismaClient();
 const app = express();
 app.use(express.json());
 
 app.post('/checkout', async (req: Request, res: Response) => {
+   const repositoryFactory = new DatabaseRepositoryFactory();
+   const checkout = new Checkout(repositoryFactory);
    try {
-      const payload = req.body;
-      console.log({payload});
-      
-      const chackout = new Checkout().execute(payload);
-      res.json(chackout);
+      const output = await checkout.execute(req.body);   
+      res.json(output);
    } catch (error) {
       console.error(error);
       res.status(422).json({ message: error.message });

@@ -6,13 +6,20 @@ import OrderRepository from "./OrderRepository";
 import OrderRepositoryDatabase from "./OrderRepositoryDatabase";
 import FreightCalculator from "./FreightCalculator";
 import Order from "./Order";
+import RepositoryFactory from "./RepositoryFactory";
 
 export default class Checkout {
+   orderRepsoitory: OrderRepository;
+   productRepository: ProductRepository;
+   couponRepository: CouponRespository;
+   
    constructor(
-      readonly productRepository: ProductRepository = new ProductRepositoryDatabase(),
-      readonly couponRepository: CouponRespository = new CouponRepositoryDatabase(),
-      readonly orderRepsoitory: OrderRepository = new OrderRepositoryDatabase(),
-   ) {}
+      RepositoryFactory: RepositoryFactory
+   ) {
+      this.orderRepsoitory = RepositoryFactory.createOrderRepository();
+      this.productRepository = RepositoryFactory.createProductRepository();
+      this.couponRepository = RepositoryFactory.createCouponRepository();
+   }
 
    async execute(input: Input): Promise<Output>{
       const sequence = await this.orderRepsoitory.count() + 1;
