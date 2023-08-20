@@ -1,5 +1,5 @@
-import Product from "../src/Product";
-import FreightCalculator from "../src/FreightCalculator";
+import Product from "../../src/domain/entity/Product";
+import FreightCalculator from "../../src/domain/entity/FreightCalculator";
 
 test("Deve calcula o frete", () => {
    const product = new Product(1, "A", 1000, 100, 30, 10, 3);

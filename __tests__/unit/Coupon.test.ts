@@ -1,4 +1,4 @@
-import Coupon from "../src/Coupon";
+import Coupon from "../../src/domain/entity/Coupon";
 
 test("deve validar se o cupom é valido", () => {
    const coupon = new Coupon("VALE20", 20, new Date("2023-11-15T08:30:00"));

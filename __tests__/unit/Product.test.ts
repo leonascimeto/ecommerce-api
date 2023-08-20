@@ -1,4 +1,4 @@
-import Product from "../src/Product";
+import Product from "../../src/domain/entity/Product";
 
 test("deve calcular densidade", () => {
    const product = new Product(1, "A", 1000, 100, 30, 10, 3);

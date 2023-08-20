@@ -1,7 +1,7 @@
-import Order from "../src/Order";
+import Order from "../../src/domain/entity/Order";
 import crypto from "crypto";
-import Product from "../src/Product";
-import Coupon from "../src/Coupon";
+import Product from "../../src/domain/entity/Product";
+import Coupon from "../../src/domain/entity/Coupon";
 
 test("Não deve criar um pedido com cpf inválido", () => {
    const orderId = crypto.randomUUID();

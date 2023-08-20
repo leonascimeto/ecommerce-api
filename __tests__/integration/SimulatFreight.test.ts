@@ -1,5 +1,5 @@
-import DatabaseRepositoryFactory from "../src/DatabaseRepositoryFactory";
-import SimulatFreight from "../src/SimulateFreight";
+import DatabaseRepositoryFactory from "../../src/infra/factory/DatabaseRepositoryFactory";
+import SimulatFreight from "../../src/application/usecase/SimulateFreight";
 
 test("Deve simular o frete", async function () {
    const input = {

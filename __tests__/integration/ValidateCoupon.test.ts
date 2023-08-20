@@ -1,6 +1,6 @@
-import ValidateCoupon from "../src/ValidateCoupon";
-import CouponRepositoryDatabase from "../src/CouponRepositoryDatabase";
-import DatabaseRepositoryFactory from "../src/DatabaseRepositoryFactory";
+import ValidateCoupon from "../../src/application/usecase/ValidateCoupon";
+import CouponRepositoryDatabase from "../../src/infra/repository/CouponRepositoryDatabase";
+import DatabaseRepositoryFactory from "../../src/infra/factory/DatabaseRepositoryFactory";
 
 let validateCoupon: ValidateCoupon
 

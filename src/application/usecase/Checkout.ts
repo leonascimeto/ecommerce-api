@@ -1,12 +1,12 @@
-import ProductRepository from "./ProductRepository";
-import CouponRespository from "./CouponRepository";
-import ProductRepositoryDatabase from "./ProductRepositoryDatabase";
-import CouponRepositoryDatabase from "./CouponRepositoryDatabase";
-import OrderRepository from "./OrderRepository";
-import OrderRepositoryDatabase from "./OrderRepositoryDatabase";
-import FreightCalculator from "./FreightCalculator";
-import Order from "./Order";
-import RepositoryFactory from "./RepositoryFactory";
+import ProductRepository from "../repository/ProductRepository";
+import CouponRespository from "../repository/CouponRepository";
+import ProductRepositoryDatabase from "../../infra/database/ProductRepositoryDatabase";
+import CouponRepositoryDatabase from "../../infra/repository/CouponRepositoryDatabase";
+import OrderRepository from "../repository/OrderRepository";
+import OrderRepositoryDatabase from "../../infra/database/OrderRepositoryDatabase";
+import FreightCalculator from "../../domain/entity/FreightCalculator";
+import Order from "../../domain/entity/Order";
+import RepositoryFactory from "../repository/RepositoryFactory";
 
 export default class Checkout {
    orderRepsoitory: OrderRepository;

@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import CouponRespository from './CouponRepository';
-import Coupon from './Coupon';
+import CouponRespository from '../../application/repository/CouponRepository';
+import Coupon from '../../domain/entity/Coupon';
 const prisma = new PrismaClient();
 
 export default class CouponRepositoryDatabase implements CouponRespository {

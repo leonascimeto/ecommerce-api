@@ -1,11 +1,11 @@
 import sinon from "sinon";
-import Checkout from "../src/Checkout";
-import ProductRepositoryDatabase from "../src/ProductRepositoryDatabase";
+import Checkout from "../../src/application/usecase/Checkout";
+import ProductRepositoryDatabase from "../../src/infra/database/ProductRepositoryDatabase";
 import crypto from "crypto";
-import GetOrder from "../src/GetOrder";
-import Product from "../src/Product";
-import DatabaseRepositoryFactory from "../src/DatabaseRepositoryFactory";
-import RepositoryFactory from "../src/RepositoryFactory";
+import GetOrder from "../../src/application/usecase/GetOrder";
+import Product from "../../src/domain/entity/Product";
+import DatabaseRepositoryFactory from "../../src/infra/factory/DatabaseRepositoryFactory";
+import RepositoryFactory from "../../src/application/repository/RepositoryFactory";
 
 let checkout: Checkout
 let getOrder: GetOrder
