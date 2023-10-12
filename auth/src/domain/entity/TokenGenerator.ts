@@ -1,4 +1,4 @@
-import { sign } from "jsonwebtoken";
+import { sign, verify } from "jsonwebtoken";
 import User from "./User";
 
 export default class TokenGenerator {
@@ -7,8 +7,11 @@ export default class TokenGenerator {
    }
 
    sign(user: User, date: Date){
-      const expiresIn = 60 * 60 * 24 * 7 * 1000;
       const token = sign({ email: user.email.value, iat: date.getTime(), expiresIn: this.EXPIRES_IN}, this.key)
       return token;
+   }
+
+   verify(token: string): any{
+      return verify(token, this.key);
    }
 }

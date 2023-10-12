@@ -3,11 +3,11 @@ import HttpServer from "./HttpServer";
 
 export default class HttpController {
    constructor(readonly httpServer: HttpServer, readonly useCaseFactory: UseCaseFactory) {
-      // httpServer.on("get", "/products", async (params: any, body: any) => {
-      //    const getProducts  = useCaseFactory.createGetProducts();
-      //    const output = await getProducts.execute();
-      //    return output;
-      // });
+      httpServer.on("get", "/verify", async (params: any, body: any) => {
+         const verify  = useCaseFactory.createVerify();
+         const output = await verify.execute(body.token);
+         return output;
+      });
    }
      
 }
